@@ -7,18 +7,55 @@ import {
   Message,
   Segment,
 } from "semantic-ui-react";
+import api from "../../api/api";
+import { redirect, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials({ ...credentials, [name]: value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Reset errors
+    setErrors({ email: "", password: "" });
+
+    // Validation
+    let formIsValid = true;
+    const updatedErrors = {};
+
+    if (!credentials.email) {
+      updatedErrors.email = "Email is required";
+      formIsValid = false;
+    }
+
+    if (!credentials.password) {
+      updatedErrors.password = "Password is required";
+      formIsValid = false;
+    }
+
+    if (!formIsValid) {
+      setErrors(updatedErrors);
+      return;
+    }
+
     // Handle login logic here
-    // You can send the 'credentials' object to your backend for authentication
+    try {
+      const response = await api.post("/user/login", credentials); // Replace 'api' with your API utility
+      login(response?.data);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      // Handle login error, e.g., setErrors({ email: "Invalid email or password", password: "Invalid email or password" });
+    }
   };
 
   return (
@@ -38,8 +75,12 @@ const Login = () => {
               name="email"
               value={credentials.email}
               onChange={handleChange}
-              required
+              error={errors.email ? true : false}
             />
+            {errors.email && (
+              <span style={{ color: "red" }}>{errors.email}</span>
+            )}
+
             <Form.Input
               fluid
               icon="lock"
@@ -49,8 +90,11 @@ const Login = () => {
               name="password"
               value={credentials.password}
               onChange={handleChange}
-              required
+              error={errors.password ? true : false}
             />
+            {errors.password && (
+              <span style={{ color: "red" }}>{errors.password}</span>
+            )}
 
             <Button color="teal" fluid size="large" type="submit">
               Login

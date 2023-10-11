@@ -1,53 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Container, Button, Modal, Form } from "semantic-ui-react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-
-const initialBoardsData = [
-  {
-    id: 1,
-    title: "Board 1",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 2,
-    title: "Board 2",
-    description: "Suspendisse potenti. Nulla facilisi.",
-  },
-  {
-    id: 3,
-    title: "Board 3",
-    description: "Praesent eget ligula ac augue pulvinar fermentum.",
-  },
-];
+import { Link } from "react-router-dom";
+import api from "../api/api";
 
 const Boards = () => {
-  const [boardsData, setBoardsData] = useState(initialBoardsData);
+  const [boardsData, setBoardsData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [newBoard, setNewBoard] = useState({ title: "", description: "" });
 
+  useEffect(() => {
+    const fetchBoards = async () => {
+      try {
+        const response = await api.get("/boards");
+        const data = response.data;
+        setBoardsData(data);
+      } catch (error) {
+        console.error("Error fetching boards data: ", error);
+      }
+    };
+
+    fetchBoards();
+  }, []);
+
   const handleCreateBoard = () => {
-    // Validate the form fields here if needed
     if (!newBoard.title || !newBoard.description) {
       return;
     }
 
-    // Generate a unique ID for the new board
     const newBoardId = Date.now();
 
-    // Create the new board object
     const createdBoard = {
       id: newBoardId,
       title: newBoard.title,
       description: newBoard.description,
     };
 
-    // Add the new board to the boardsData array
     const updatedBoardsData = [...boardsData, createdBoard];
 
-    // Update the state to reflect the new board
     setBoardsData(updatedBoardsData);
-
-    // Close the modal and reset the form fields
     setOpenModal(false);
     setNewBoard({ title: "", description: "" });
   };
@@ -64,21 +54,19 @@ const Boards = () => {
       <div
         style={{
           display: "flex",
-          gap: "16px", // Adjust the gap as needed
-          flexWrap: "wrap", // Allow cards to wrap to the next line
+          gap: "16px",
+          flexWrap: "wrap",
         }}
       >
         {boardsData.map((board) => (
-          <Link to={`/boards/${board.id}`} key={board.id}>
-            {" "}
-            {/* Wrap the Card in Link */}
+          <Link to={`/boards/${board.boardId}`} key={board.boardId}>
             <Card
               style={{
                 borderRadius: "8px",
                 width: "300px",
                 boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                 marginBottom: "16px",
-                cursor: "pointer", // Add cursor pointer
+                cursor: "pointer",
               }}
             >
               <Card.Content>

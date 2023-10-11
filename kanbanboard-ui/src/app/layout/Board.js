@@ -1,44 +1,27 @@
-import React, { useState } from "react";
-import {
-  Container,
-  Button,
-  Grid,
-  Input,
-  Modal,
-  Header,
-} from "semantic-ui-react";
+import React, { useState, useEffect } from "react";
+import { Button, Grid, Input, Modal, Header } from "semantic-ui-react";
+import api from "../api/api";
 import KanbanColumn from "./KanbanColumn";
+import { useParams } from "react-router-dom";
 
-function KanbanBoard() {
-  const [columns, setColumns] = useState([
-    {
-      id: "inProgress",
-      title: "In Progress",
-      tasks: [
-        { id: "task-1", content: "Task 1" },
-        { id: "task-2", content: "Task 2" },
-      ],
-    },
-    {
-      id: "dev",
-      title: "Dev",
-      tasks: [
-        { id: "task-3", content: "Task 3" },
-        { id: "task-4", content: "Task 4" },
-      ],
-    },
-    {
-      id: "prod",
-      title: "Prod",
-      tasks: [
-        { id: "task-5", content: "Task 5" },
-        { id: "task-6", content: "Task 6" },
-      ],
-    },
-  ]);
-
+function Board() {
+  const [columns, setColumns] = useState([]);
   const [open, setOpen] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
+  const { id } = useParams();
+
+  useEffect(() => {
+    const fetchColumns = async () => {
+      try {
+        const response = await api.get(`/boards/${id}/columns`);
+        setColumns(response.data);
+      } catch (error) {
+        console.error("Error fetching columns data: ", error);
+      }
+    };
+
+    fetchColumns();
+  }, []);
 
   const handleAddColumn = () => {
     setOpen(true);
@@ -46,22 +29,12 @@ function KanbanBoard() {
 
   const handleConfirm = () => {
     if (newColumnName.trim() === "") {
-      // Don't add an empty column name
       setOpen(false);
       return;
     }
 
-    const columnId = `column-${new Date().getTime()}`;
-    const updatedColumns = [
-      ...columns,
-      {
-        id: columnId,
-        title: newColumnName,
-        tasks: [],
-      },
-    ];
+    // Code to send the new column name to the server can be added here
 
-    setColumns(updatedColumns);
     setOpen(false);
     setNewColumnName("");
   };
@@ -108,23 +81,23 @@ function KanbanBoard() {
           style={{
             display: "flex",
             minWidth: `${columns.length * 330 + (columns.length - 1) * 16}px`,
-            minHeight: "100vh", // Set the minimum height to fill the page
+            minHeight: "100vh",
           }}
         >
-          {columns.map((column, index) => (
-            <React.Fragment key={column.id}>
-              {index > 0 && <div style={{ width: 16 }} />}{" "}
-              {/* Add space between columns */}
-              <KanbanColumn
-                column={column}
-                columns={columns}
-                setColumns={setColumns}
-              />
-            </React.Fragment>
-          ))}
+          {columns &&
+            columns.length &&
+            columns.map((column, index) => (
+              <React.Fragment key={column.id}>
+                {index > 0 && <div style={{ width: 16 }} />}
+                <KanbanColumn
+                  column={column}
+                  columns={columns}
+                  setColumns={setColumns}
+                />
+              </React.Fragment>
+            ))}
         </div>
-        <div style={{ height: "16px" }}></div>{" "}
-        {/* Add some space at the bottom */}
+        <div style={{ height: "16px" }}></div>
         <Modal
           open={open}
           onClose={() => setOpen(false)}
@@ -158,4 +131,4 @@ function KanbanBoard() {
   );
 }
 
-export default KanbanBoard;
+export default Board;

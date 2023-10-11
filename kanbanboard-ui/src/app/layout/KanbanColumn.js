@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Grid, Header, Button, Divider, Icon } from "semantic-ui-react";
 import KanbanCard from "./KanbanCard";
 import AddCardModal from "./AddCardModal";
 import EditColumnModal from "./EditColumnModal";
 
-function KanbanColumn({ column, columns, setColumns }) {
+function KanbanColumn({ column = {}, columns, setColumns }) {
   const [openModal, setOpenModal] = useState(false);
-  const [cards, setCards] = useState(column.tasks);
+  const [cards, setCards] = useState(column.cards || []);
   const [editColumnModalOpen, setEditColumnModalOpen] = useState(false);
 
   const handleDragStart = (e, taskId, columnName) => {
@@ -18,35 +18,45 @@ function KanbanColumn({ column, columns, setColumns }) {
     e.preventDefault();
   };
 
-  const handleDrop = (e) => {
-    const taskId = e.dataTransfer.getData("taskId");
-    const sourceColumnName = e.dataTransfer.getData("columnName");
+  useEffect(() => {
+    setCards(column.cards || []);
+  }, [column, column?.cards]);
 
-    if (sourceColumnName === column.id) {
+  const handleDrop = (e) => {
+    const taskId = parseInt(e.dataTransfer.getData("taskId"));
+    const sourceColumnName = parseInt(e.dataTransfer.getData("columnName"));
+
+    if (sourceColumnName === column.columnId) {
       return;
     }
 
     const updatedColumns = columns.map((col) => {
-      if (col.id === sourceColumnName) {
+      if (col.columnId === sourceColumnName) {
+        const shiftedCard = col.cards.find((card) => card.cardId === taskId);
         return {
           ...col,
-          tasks: col.tasks.filter((task) => task.id !== taskId),
+          cards: col.cards.filter((card) => card.cardId !== taskId),
         };
       }
-      if (col.id === column.id) {
+
+      if (col.columnId === column.columnId) {
+        const shiftedCard = columns
+          .find((col) => col.columnId === sourceColumnName)
+          .cards.find((card) => card.cardId === taskId);
+
         return {
           ...col,
-          tasks: [
-            ...col.tasks,
-            { ...cards.find((card) => card.id === taskId) },
-          ],
+          cards: [...col.cards, { ...shiftedCard }],
         };
       }
-      return col;
+
+      return col; // Important: Return the unchanged column if not the source or destination column
     });
 
-    setColumns(updatedColumns);
-    setCards(updatedColumns.find((col) => col.id === column.id).tasks);
+    setColumns([...updatedColumns]);
+    setCards(
+      updatedColumns.find((col) => col.columnId === column.columnId).cards
+    );
   };
 
   const openEditColumnModal = () => {
@@ -60,7 +70,7 @@ function KanbanColumn({ column, columns, setColumns }) {
   const handleEditColumn = (updatedColumn) => {
     // Handle column update here
     const updatedColumns = columns.map((col) =>
-      col.id === updatedColumn.id ? updatedColumn : col
+      col.columnId === updatedColumn.id ? updatedColumn : col
     );
     setColumns(updatedColumns);
     closeEditColumnModal();
@@ -76,17 +86,19 @@ function KanbanColumn({ column, columns, setColumns }) {
 
   const handleAddCard = (newCard) => {
     const updatedColumns = columns.map((col) => {
-      if (col.id === column.id) {
+      if (col.columnId === column.columnId) {
         return {
           ...col,
-          tasks: [...col.tasks, newCard],
+          tasks: [...col.cards, newCard],
         };
       }
       return col;
     });
 
     setColumns(updatedColumns);
-    setCards(updatedColumns.find((col) => col.id === column.id).tasks);
+    setCards(
+      updatedColumns.find((col) => col.columnId === column.columnId).tasks
+    );
   };
 
   return (
@@ -115,7 +127,7 @@ function KanbanColumn({ column, columns, setColumns }) {
             marginTop: 10,
           }}
         >
-          <span style={{ flex: 1, textAlign: "center" }}>{column.title}</span>
+          <span style={{ flex: 1, textAlign: "center" }}>{column.name}</span>
           <Icon
             //name="ellipsis horizontal"
             name="edit"
@@ -131,16 +143,17 @@ function KanbanColumn({ column, columns, setColumns }) {
           }}
         />
         <div style={{ padding: "16px" }}>
-          {cards.map((task) => (
-            <KanbanCard
-              key={task.id}
-              task={task}
-              columnId={column.id}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            />
-          ))}
+          {cards &&
+            cards.map((task) => (
+              <KanbanCard
+                key={task.id}
+                card={task}
+                columnId={column.columnId}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              />
+            ))}
           <div style={{ marginTop: cards.length === 0 ? 30 : 16 }}>
             <Button color="instagram" fluid onClick={openAddCardModal}>
               <i className="plus icon" /> Add a card

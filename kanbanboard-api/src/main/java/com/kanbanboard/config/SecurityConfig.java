@@ -24,7 +24,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests((requests) -> requests
                         .requestMatchers( "/user/login").permitAll()
                         //.requestMatchers(HttpMethod.POST, "/**").authenticated()
-                        .requestMatchers( "/**").authenticated())
+                        .requestMatchers( "/**").permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling().authenticationEntryPoint(userAuthenticationEntryPoint)
                 .and()
                 .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class)

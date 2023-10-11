@@ -11,12 +11,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = (token) => {
+  const login = ({ token, userId }) => {
     localStorage.setItem("token", token);
     setToken(token);
     const decodedToken = jwt_decode(token);
-    console.log("decodedToken ", decodedToken);
-    getUser(decodedToken.user_id).then((user) => {
+    getUser(userId).then((user) => {
       setUser(user);
     });
   };
@@ -38,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
   const getUser = async (userId) => {
     try {
-      const response = await api.get(`/users/${userId}`);
+      const response = await api.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -50,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       if (isAuthenticated()) {
         setIsLoading(true);
         const decodedToken = jwt_decode(token || localStorage.getItem("token"));
-        const user = await getUser(decodedToken?.user_id);
+        const user = await getUser(decodedToken?.userId);
         setUser(user);
         setIsLoading(false);
       } else {

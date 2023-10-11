@@ -1,19 +1,41 @@
 import React from "react";
 import { Container, Image, Menu } from "semantic-ui-react";
+import LogoImage from "../images/logo.png";
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header = () => {
+  const { isAuthenticated } = useAuth();
   return (
     <Menu fixed="top" inverted>
-      <Container>
-        <Menu.Item as="a" header>
-          <Image
-            size="mini"
-            src="https://cdn-icons-png.flaticon.com/512/5360/5360804.png"
-            style={{ marginRight: "1.5em" }}
-          />
-          Kanban Board
-        </Menu.Item>
-      </Container>
+      <Menu.Item as="a" header style={{ marginLeft: 20 }}>
+        <Image size="mini" src={LogoImage} />
+        Kanban Board
+      </Menu.Item>
+      <Menu.Menu position="right">
+        {isAuthenticated() ? (
+          <>
+            <Menu.Item as={Link} to="/boards" style={{ marginRight: 20 }}>
+              Boards
+            </Menu.Item>
+            <Menu.Item as={Link} to="/profile" style={{ marginRight: 20 }}>
+              Profile
+            </Menu.Item>
+            <Menu.Item as={Link} to="/logout" style={{ marginRight: 20 }}>
+              Logout
+            </Menu.Item>
+          </>
+        ) : (
+          <>
+            <Menu.Item as={Link} to="/register" style={{ marginRight: 20 }}>
+              Register
+            </Menu.Item>
+            <Menu.Item as={Link} to="/login" style={{ marginRight: 20 }}>
+              Login
+            </Menu.Item>
+          </>
+        )}
+      </Menu.Menu>
     </Menu>
   );
 };

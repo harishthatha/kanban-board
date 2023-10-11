@@ -32,13 +32,14 @@ public class UserAuthenticationProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String login) {
+    public String createToken(String login, int userId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + 3600000); // 1 hour
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         return JWT.create()
                 .withSubject(login)
+                .withClaim("userId",userId)
                 .withIssuedAt(now)
                 .withExpiresAt(validity)
                 .sign(algorithm);

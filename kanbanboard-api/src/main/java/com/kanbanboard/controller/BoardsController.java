@@ -1,9 +1,8 @@
 package com.kanbanboard.controller;
 
-import com.kanbanboard.config.UserAuthenticationProvider;
-import com.kanbanboard.dto.UserDto;
-import com.kanbanboard.exception.UserNotFoundException;
-import com.kanbanboard.service.UserService;
+import com.kanbanboard.dto.BoardDto;
+import com.kanbanboard.exception.BoardNotFoundException;
+import com.kanbanboard.service.BoardsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,50 +11,44 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/boards")
+public class BoardsController {
+
+    private final BoardsService boardsService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private  UserAuthenticationProvider userAuthenticationProvider;
+    public BoardsController(BoardsService boardsService) {
+        this.boardsService = boardsService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsers(){
-        List<UserDto> users = userService.getUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<BoardDto>> getAllBoards() {
+        List<BoardDto> boards = boardsService.getAllBoards();
+        return ResponseEntity.ok(boards);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable int id) throws UserNotFoundException {
-       Optional<UserDto> user = userService.getUser(id);
-        return ResponseEntity.ok(user.orElse(null));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable int id, @RequestBody UserDto updatedUserDto) throws UserNotFoundException {
-        Optional<UserDto> updatedUser = userService.updateUser(id, updatedUserDto);
-        return ResponseEntity.ok(updatedUser.orElse(null));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id) throws UserNotFoundException {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<BoardDto> getBoardById(@PathVariable int id) throws BoardNotFoundException {
+        Optional<BoardDto> board = boardsService.getBoardById(id);
+        return ResponseEntity.ok(board.orElse(null));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
-        UserDto newUser = userService.addUser(userDto);
-        return ResponseEntity.ok(newUser);
+    public ResponseEntity<BoardDto> createBoard(@RequestBody BoardDto boardDto) {
+        BoardDto createdBoard = boardsService.createBoard(boardDto);
+        return ResponseEntity.ok(createdBoard);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@RequestBody UserDto userDto) {
-        UserDto user = userService.login(userDto);
-        user.setToken(userAuthenticationProvider.createToken(userDto.getEmail()));
-        return ResponseEntity.ok(user);
+    @PutMapping("/{id}")
+    public ResponseEntity<BoardDto> updateBoard(@PathVariable int id, @RequestBody BoardDto updatedBoardDto)
+            throws BoardNotFoundException {
+        Optional<BoardDto> updatedBoard = boardsService.updateBoard(id, updatedBoardDto);
+        return ResponseEntity.ok(updatedBoard.orElse(null));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable int id) throws BoardNotFoundException {
+        boardsService.deleteBoard(id);
+        return ResponseEntity.noContent().build();
+    }
 }

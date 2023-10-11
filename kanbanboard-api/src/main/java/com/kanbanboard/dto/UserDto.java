@@ -13,5 +13,6 @@ public class UserDto extends BaseDto{
     private String email;
     private String password;
     private String token;
+    private String role;
 
 }

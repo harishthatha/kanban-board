@@ -2,7 +2,7 @@ import React from "react";
 import { Container } from "semantic-ui-react";
 import Header from "./Header";
 import LeftSidebar from "./Sidebar";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const layoutStyle = {
   display: "flex",
@@ -23,15 +23,11 @@ const contentStyle = {
 
 const Layout = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  console.log("isAuthenticated ", isAuthenticated);
 
   return (
     <div style={layoutStyle}>
       <Header />
-      <div style={contentStyle}>
-        {isAuthenticated() && <LeftSidebar style={sidebarStyle} />}
-        <Container>{children}</Container>
-      </div>
+      <div style={contentStyle}>{children}</div>
     </div>
   );
 };

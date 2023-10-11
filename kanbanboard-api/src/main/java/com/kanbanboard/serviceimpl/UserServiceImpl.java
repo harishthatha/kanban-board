@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +53,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(UserDto userDto) {
         UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
-        //userEntity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        //userEntity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         UserEntity savedUserEntity = userRepository.save(userEntity);
         return modelMapper.map(savedUserEntity, UserDto.class);
     }
@@ -81,14 +80,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto login(UserDto userDto) {
         UserEntity user = userRepository.findByEmail(userDto.getEmail())
-                .orElseThrow(() -> new BaseException("Unknown user", HttpStatus.NOT_FOUND));
+                .orElseThrow(()-> new UserNotFoundException("not found",HttpStatus.NOT_FOUND));
         System.out.println(user.getPassword().equals(userDto.getPassword()));
-        if(user.getPassword().equals(userDto.getPassword())) return modelMapper.map(user, UserDto.class);
-
-        if (passwordEncoder.matches(CharBuffer.wrap(userDto.getPassword()), user.getPassword())) {
-            return modelMapper.map(user, UserDto.class);
+        if(user.getPassword().equals(userDto.getPassword())){
+            UserDto finalUserDetails = modelMapper.map(user, UserDto.class);
+            finalUserDetails.setPassword(null);
+            return finalUserDetails;
         }
-        throw new BaseException("Invalid password", HttpStatus.BAD_REQUEST);
+        throw new UserNotFoundException("Invalid password",HttpStatus.BAD_REQUEST);
     }
 
     @Override
