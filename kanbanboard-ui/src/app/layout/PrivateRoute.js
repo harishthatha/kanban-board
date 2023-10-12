@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 const privateUrls = ["/boards", "/boards/:id", "/"];
 
 function PrivateRoute({ path, element: Component }) {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   if ((isAuthenticated() && path === "/login") || path === "/register")
     path = "/";

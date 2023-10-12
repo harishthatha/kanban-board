@@ -39,6 +39,14 @@ function Board() {
     setNewColumnName("");
   };
 
+  const handleColumnDrop = (draggedColumnIndex, droppedColumnIndex) => {
+    const updatedColumns = [...columns];
+    const draggedColumn = updatedColumns[draggedColumnIndex];
+    updatedColumns[draggedColumnIndex] = updatedColumns[droppedColumnIndex];
+    updatedColumns[droppedColumnIndex] = draggedColumn;
+    setColumns(updatedColumns);
+  };
+
   return (
     <>
       <div
@@ -76,57 +84,50 @@ function Board() {
       </div>
 
       <div style={{ overflowX: "auto", marginTop: 16, marginLeft: 16 }}>
-        <div
-          className="kanban-grid"
-          style={{
-            display: "flex",
-            minWidth: `${columns.length * 330 + (columns.length - 1) * 16}px`,
-            minHeight: "100vh",
-          }}
-        >
-          {columns &&
-            columns.length &&
-            columns.map((column, index) => (
-              <React.Fragment key={column.id}>
-                {index > 0 && <div style={{ width: 16 }} />}
-                <KanbanColumn
-                  column={column}
-                  columns={columns}
-                  setColumns={setColumns}
-                />
-              </React.Fragment>
-            ))}
+        <div className="kanban-grid" style={{ display: "flex" }}>
+          {columns.map((column, index) => (
+            <React.Fragment key={column.columnId}>
+              {index > 0 && <div style={{ width: 16 }} />}
+              <KanbanColumn
+                column={column}
+                columns={columns}
+                setColumns={setColumns}
+                columnIndex={index}
+                onColumnDrop={handleColumnDrop}
+              />
+            </React.Fragment>
+          ))}
         </div>
-        <div style={{ height: "16px" }}></div>
-        <Modal
-          open={open}
-          onClose={() => setOpen(false)}
-          onOpen={() => setOpen(true)}
-          size="small"
-        >
-          <Modal.Header>Add another list</Modal.Header>
-          <Modal.Content>
-            <Input
-              fluid
-              placeholder="Column Name"
-              value={newColumnName}
-              onChange={(e) => setNewColumnName(e.target.value)}
-            />
-          </Modal.Content>
-          <Modal.Actions>
-            <Button color="black" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              positive
-              icon="checkmark"
-              labelPosition="right"
-              content="Add"
-              onClick={handleConfirm}
-            />
-          </Modal.Actions>
-        </Modal>
       </div>
+
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        size="small"
+      >
+        <Modal.Header>Add another list</Modal.Header>
+        <Modal.Content>
+          <Input
+            fluid
+            placeholder="Column Name"
+            value={newColumnName}
+            onChange={(e) => setNewColumnName(e.target.value)}
+          />
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color="black" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            positive
+            icon="checkmark"
+            labelPosition="right"
+            content="Add"
+            onClick={handleConfirm}
+          />
+        </Modal.Actions>
+      </Modal>
     </>
   );
 }

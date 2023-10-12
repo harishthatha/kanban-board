@@ -85,7 +85,10 @@ const Register = () => {
           message: "Registration successful",
           show: true,
         });
-        navigate("/login");
+        debugger;
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } catch (err) {
         const message = err?.response?.data.message;
         setAlertMessage({

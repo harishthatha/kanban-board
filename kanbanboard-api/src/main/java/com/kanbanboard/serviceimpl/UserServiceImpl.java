@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
+        userDto.setRole("ROLE_USER");
         UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
         UserEntity savedUserEntity = userRepository.save(userEntity);
         return modelMapper.map(savedUserEntity, UserDto.class);
