@@ -20,14 +20,13 @@ function EditColumnModal({ open, onClose, column, onUpdate, onDelete }) {
           <Form.Field>
             <label>Column Title</label>
             <Input
-              placeholder="Edit column title"
-              value={editedColumn.title}
+              placeholder="Edit column name"
+              value={editedColumn.name}
               onChange={(e) =>
-                setEditedColumn({ ...editedColumn, title: e.target.value })
+                setEditedColumn({ ...editedColumn, name: e.target.value })
               }
             />
           </Form.Field>
-          {/* Add additional fields for column details here */}
         </Form>
       </Modal.Content>
       <Modal.Actions>
@@ -41,7 +40,7 @@ function EditColumnModal({ open, onClose, column, onUpdate, onDelete }) {
           primary
           icon="checkmark"
           labelPosition="right"
-          content="Save"
+          content="Update"
           onClick={handleUpdate}
         />
       </Modal.Actions>

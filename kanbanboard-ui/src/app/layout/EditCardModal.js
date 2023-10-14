@@ -1,77 +1,108 @@
-import React, { useState } from "react";
-import { Modal, Form, Input, Button, Dropdown } from "semantic-ui-react";
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  Dropdown,
+  Message,
+} from "semantic-ui-react";
+import api from "../api/api";
 
-function EditCardModal({ isOpen, onClose, onSave, onDelete, task }) {
-  const [editedTask, setEditedTask] = useState({ ...task });
+function EditCardModal({ open, onClose, onUpdate, card }) {
+  const [cardTitle, setCardTitle] = useState("");
+  const [cardDescription, setCardDescription] = useState("");
+  const [storyPoints, setStoryPoints] = useState("");
+  const [assignee, setAssignee] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSave = () => {
-    // Handle saving the edited task details
-    onSave(editedTask);
-  };
+  useEffect(() => {
+    if (card) {
+      setCardTitle(card.title);
+      setCardDescription(card.description);
+      setStoryPoints(card.points.toString());
+      setAssignee(card.assignedUserId.toString());
+    }
+  }, [card]);
 
-  const handleDelete = () => {
-    // Handle deleting the task
-    onDelete(task.id);
+  const handleUpdateCard = async () => {
+    if (!cardTitle || !assignee) {
+      setError("Title and Assignee are required fields.");
+      return;
+    }
+
+    try {
+      const response = await api.put(`/cards/${card.cardId}`, {
+        title: cardTitle,
+        description: cardDescription,
+        points: parseInt(storyPoints),
+        assignedUserId: parseInt(assignee),
+      });
+
+      const updatedCard = response.data;
+      onUpdate(updatedCard);
+      onClose();
+    } catch (error) {
+      console.error("Error updating card: ", error);
+    }
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose} size="tiny">
+    <Modal
+      open={open}
+      onClose={() => {
+        setError("");
+        onClose();
+      }}
+      size="tiny"
+    >
       <Modal.Header>Edit Card</Modal.Header>
       <Modal.Content>
-        <Form>
+        <Form error={!!error}>
           <Form.Field>
-            <label>Task Content</label>
+            <label>Title</label>
             <Input
-              placeholder="Edit task content"
-              value={editedTask.content}
-              onChange={(e) =>
-                setEditedTask({ ...editedTask, content: e.target.value })
-              }
+              placeholder="Enter title"
+              value={cardTitle}
+              onChange={(e) => setCardTitle(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
             <label>Description</label>
             <Input
-              placeholder="Edit description"
-              value={editedTask.description || ""}
-              onChange={(e) =>
-                setEditedTask({ ...editedTask, description: e.target.value })
-              }
+              placeholder="Enter description"
+              value={cardDescription}
+              onChange={(e) => setCardDescription(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
             <label>Story Points</label>
             <Input
               type="number"
-              placeholder="Edit story points"
-              value={editedTask.storyPoints || ""}
-              onChange={(e) =>
-                setEditedTask({
-                  ...editedTask,
-                  storyPoints: parseInt(e.target.value) || null,
-                })
-              }
+              placeholder="Enter story points"
+              value={storyPoints}
+              onChange={(e) => setStoryPoints(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
             <label>Assignee</label>
-            <Dropdown
-              placeholder="Select assignee"
-              selection
-              options={[]}
-              value={editedTask.assignee || ""}
-              onChange={(e, { value }) =>
-                setEditedTask({ ...editedTask, assignee: value })
-              }
+            <Input
+              placeholder="Enter assignee"
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
             />
           </Form.Field>
+          <Message error content={error} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button color="red" floated="left" onClick={handleDelete}>
-          Delete
-        </Button>
-        <Button color="black" onClick={onClose}>
+        <Button
+          color="black"
+          onClick={() => {
+            setError("");
+            onClose();
+          }}
+        >
           Cancel
         </Button>
         <Button
@@ -79,7 +110,7 @@ function EditCardModal({ isOpen, onClose, onSave, onDelete, task }) {
           icon="checkmark"
           labelPosition="right"
           content="Save"
-          onClick={handleSave}
+          onClick={handleUpdateCard}
         />
       </Modal.Actions>
     </Modal>

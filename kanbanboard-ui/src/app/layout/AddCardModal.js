@@ -1,37 +1,86 @@
-import React, { useState } from "react";
-import { Modal, Form, Input, Button, Dropdown } from "semantic-ui-react";
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  Dropdown,
+  Message,
+} from "semantic-ui-react";
+import api from "../api/api";
+import { useParams } from "react-router-dom";
 
-function AddCardModal({ open, onClose, onAddCard }) {
+function AddCardModal({ open, onClose, onAddCard, columnId }) {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [assignee, setAssignee] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [users, setUsers] = useState([]);
+  const { id } = useParams();
 
-  // Options for the assignee dropdown, replace with your own data
-  const assigneeOptions = [
-    { key: "1", text: "User 1", value: "user1" },
-    { key: "2", text: "User 2", value: "user2" },
-    // Add more options as needed
-  ];
-
-  const handleAddCard = () => {
-    // Validate and process the card details here
-    const newCard = {
-      id: `${new Date().getTime()}`,
-      title: cardTitle || `Task ${new Date().getTime()}`,
-      description: cardDescription || "",
-      storyPoints: storyPoints || 0, // You can convert this to a number if needed
-      assignee: assignee || "Unassigned", // Default value if no assignee selected
+  useEffect(() => {
+    // Fetch the list of users from the API and update the state
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/user"); // Adjust the API endpoint accordingly
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users: ", error);
+      }
     };
-    onAddCard(newCard);
-    onClose();
+
+    fetchUsers();
+  }, []); // Empty dependency array ensures the effect runs once after the initial render
+
+  const assigneeOptions = users.map((user) => ({
+    key: user.userId,
+    text: user.firstName + " " + user.lastName,
+    value: user.userId,
+  }));
+
+  const handleAddCard = async () => {
+    debugger;
+    if (!cardTitle || !assignee) {
+      setError("Title and Assignee are required fields.");
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        `/boards/${id}/columns/${columnId}/cards`,
+        {
+          title: cardTitle,
+          description: cardDescription,
+          points: storyPoints,
+          assignedUserId: assignee,
+        }
+      );
+
+      const newCard = response.data;
+      onAddCard(newCard);
+      onClose();
+      setSuccess("Card added successfully!"); // Set the success message
+    } catch (error) {
+      console.error("Error adding card: ", error);
+      setError("Error adding card. Please try again."); // Set an error message
+    }
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="tiny">
+    <Modal
+      open={open}
+      onClose={() => {
+        setError("");
+        setSuccess("");
+        onClose();
+      }}
+      size="tiny"
+    >
       <Modal.Header>Add Card</Modal.Header>
       <Modal.Content>
-        <Form>
+        <Form error={!!error} success={!!success}>
           <Form.Field>
             <label>Title</label>
             <Input
@@ -69,10 +118,19 @@ function AddCardModal({ open, onClose, onAddCard }) {
               onChange={(e, data) => setAssignee(data.value)}
             />
           </Form.Field>
+          <Message error content={error} />
+          <Message success content={success} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button color="black" onClick={onClose}>
+        <Button
+          color="black"
+          onClick={() => {
+            setError("");
+            setSuccess("");
+            onClose();
+          }}
+        >
           Cancel
         </Button>
         <Button

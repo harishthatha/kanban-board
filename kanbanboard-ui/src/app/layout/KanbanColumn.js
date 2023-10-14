@@ -3,10 +3,13 @@ import { Grid, Header, Button, Divider, Icon } from "semantic-ui-react";
 import KanbanCard from "./KanbanCard";
 import AddCardModal from "./AddCardModal";
 import EditColumnModal from "./EditColumnModal";
+import api from "../api/api";
+import { useParams } from "react-router-dom";
 
 function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
   const [openModal, setOpenModal] = useState(false);
   const [editColumnModalOpen, setEditColumnModalOpen] = useState(false);
+  const { id } = useParams();
 
   const handleCardDragStart = (e, cardId) => {
     e.dataTransfer.setData("itemType", "card");
@@ -64,12 +67,37 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
     setEditColumnModalOpen(false);
   };
 
-  const handleEditColumn = (updatedColumn) => {
-    const updatedColumns = columns.map((col) =>
-      col.columnId === updatedColumn.columnId ? updatedColumn : col
-    );
-    setColumns(updatedColumns);
-    closeEditColumnModal();
+  const handleEditColumn = async (updatedColumn) => {
+    try {
+      const response = await api.put(
+        `/boards/${id}/columns/${updatedColumn.columnId}`,
+        {
+          name: updatedColumn.name,
+        }
+      );
+
+      const updatedColumns = columns.map((col) =>
+        col.columnId === updatedColumn.columnId ? response.data : col
+      );
+      setColumns(updatedColumns);
+      closeEditColumnModal();
+    } catch (error) {
+      console.error("Error updating column: ", error);
+      // Handle error here, e.g., show an error message to the user
+    }
+  };
+
+  const handleDeleteColumn = async () => {
+    try {
+      await api.delete(`/boards/${id}/columns/${column.columnId}`);
+      const updatedColumns = columns.filter(
+        (col) => col.columnId !== column.columnId
+      );
+      setColumns(updatedColumns);
+    } catch (error) {
+      console.error("Error deleting column: ", error);
+      // Handle error here, e.g., show an error message to the user
+    }
   };
 
   const openAddCardModal = () => {
@@ -159,7 +187,7 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
           <span style={{ flex: 1, textAlign: "center" }}>{column.name}</span>
           <Icon
             name="edit"
-            style={{ cursor: "pointer", fontSize: "13px", marginRight: "20px" }}
+            style={{ cursor: "pointer", fontSize: "13px", marginRight: "10px" }}
             onClick={openEditColumnModal}
           />
         </Header>
@@ -192,11 +220,13 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
           open={openModal}
           onClose={closeAddCardModal}
           onAddCard={handleAddCard}
+          columnId={column.columnId}
         />
         <EditColumnModal
           open={editColumnModalOpen}
           onClose={closeEditColumnModal}
           column={column}
+          onDelete={handleDeleteColumn}
           onUpdate={handleEditColumn}
         />
       </div>

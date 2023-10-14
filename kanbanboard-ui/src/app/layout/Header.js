@@ -8,7 +8,12 @@ const Header = () => {
   const { isAuthenticated } = useAuth();
   return (
     <Menu fixed="top" inverted>
-      <Menu.Item as={Link} to="/boards" header style={{ marginLeft: 20 }}>
+      <Menu.Item
+        as={Link}
+        to="/boards"
+        header
+        style={{ marginLeft: 20, marginRight: 10 }}
+      >
         <Image size="mini" src={LogoImage} />
         Kanban Board
       </Menu.Item>

@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     public ColumnDto createColumn(int boardId, ColumnDto columnDto) {
         ColumnEntity columnEntity = modelMapper.map(columnDto, ColumnEntity.class);
-        //columnEntity.setBoardId(boardId);
+        columnEntity.setBoardId(boardId);
         ColumnEntity savedColumnEntity = columnRepository.save(columnEntity);
         return modelMapper.map(savedColumnEntity, ColumnDto.class);
     }
@@ -59,7 +60,9 @@ public class ColumnServiceImpl implements ColumnService {
         if (existingColumnEntity.isEmpty()) throw new ColumnNotFoundException("Column not found");
 
         ColumnEntity updatedColumnEntity = modelMapper.map(updatedColumnDto, ColumnEntity.class);
-        //updatedColumnEntity.setBoardId(boardId);
+        updatedColumnEntity.setBoardId(boardId);
+        updatedColumnEntity.setColumnId(columnId);
+        updatedColumnEntity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         columnRepository.save(updatedColumnEntity);
 
         return Optional.of(modelMapper.map(updatedColumnEntity, ColumnDto.class));

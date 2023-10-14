@@ -21,30 +21,46 @@ function Board() {
     };
 
     fetchColumns();
-  }, []);
+  }, [id]); // Ensure useEffect runs when `id` changes
 
   const handleAddColumn = () => {
     setOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (newColumnName.trim() === "") {
       setOpen(false);
       return;
     }
 
-    // Code to send the new column name to the server can be added here
+    try {
+      const response = await api.post(`/boards/${id}/columns`, {
+        name: newColumnName.trim(),
+      });
 
-    setOpen(false);
-    setNewColumnName("");
+      const newColumn = response.data;
+      setColumns([...columns, newColumn]);
+      setOpen(false);
+      setNewColumnName("");
+    } catch (error) {
+      console.error("Error adding new column: ", error);
+      // Handle error here, e.g., show an error message to the user
+    }
   };
 
-  const handleColumnDrop = (draggedColumnIndex, droppedColumnIndex) => {
+  const handleColumnDrop = async (draggedColumnIndex, droppedColumnIndex) => {
     const updatedColumns = [...columns];
     const draggedColumn = updatedColumns[draggedColumnIndex];
     updatedColumns[draggedColumnIndex] = updatedColumns[droppedColumnIndex];
     updatedColumns[droppedColumnIndex] = draggedColumn;
     setColumns(updatedColumns);
+
+    try {
+      await api.put(`/boards/${id}/columns/order`, updatedColumns);
+    } catch (error) {
+      console.error("Error updating column order: ", error);
+      // Handle error here, e.g., show an error message to the user
+    }
   };
 
   return (
