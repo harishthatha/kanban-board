@@ -85,7 +85,6 @@ const Register = () => {
           message: "Registration successful",
           show: true,
         });
-        debugger;
         setTimeout(() => {
           navigate("/login");
         }, 1500);

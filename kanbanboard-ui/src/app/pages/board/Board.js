@@ -74,12 +74,6 @@ function Board() {
     updatedColumns[draggedColumnIndex] = updatedColumns[droppedColumnIndex];
     updatedColumns[droppedColumnIndex] = draggedColumn;
     setColumns(updatedColumns);
-
-    try {
-      await api.put(`/boards/${id}/columns/order`, updatedColumns);
-    } catch (error) {
-      console.error("Error updating column order: ", error);
-    }
   };
 
   return (

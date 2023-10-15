@@ -27,7 +27,6 @@ function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
   }));
 
   const handleAddCard = async () => {
-    debugger;
     if (!cardTitle || !assignee) {
       setError("Title and Assignee are required fields.");
       return;
