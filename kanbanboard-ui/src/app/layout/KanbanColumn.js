@@ -237,7 +237,7 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
       style={{
         minWidth: 260,
         maxWidth: 260,
-        marginRight: 16,
+        padding: "0 8px",
       }}
     >
       <div

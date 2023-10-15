@@ -75,13 +75,15 @@ function Board() {
           paddingRight: 160,
           position: "fixed",
           width: "100%",
-          top: 60,
+          top: 62,
           left: 150,
           zIndex: 1,
           right: 150,
         }}
       >
-        <Header as="h1">{board?.title}</Header>
+        <Header style={{ marginTop: 2 }} as="h1">
+          {board?.title}
+        </Header>
         <Button color="instagram" onClick={handleAddColumn}>
           Add another list
         </Button>
@@ -100,14 +102,12 @@ function Board() {
           <div
             style={{
               marginLeft: 16,
-              marginRight: 16,
               display: "flex",
               whiteSpace: "nowrap",
             }}
           >
             {columns.map((column, index) => (
               <React.Fragment key={column.columnId}>
-                {index > 0 && <div style={{ width: 16 }} />}
                 <KanbanColumn
                   column={column}
                   columns={columns}
