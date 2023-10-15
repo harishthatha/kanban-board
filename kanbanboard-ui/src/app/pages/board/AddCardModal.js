@@ -7,24 +7,17 @@ import {
   Dropdown,
   Message,
 } from "semantic-ui-react";
-import api from "../api/api";
+import api from "../../api/api";
 import { useParams } from "react-router-dom";
 
-function EditCardModal({
-  open,
-  onClose,
-  onUpdate,
-  onDelete,
-  card,
-  columnId,
-  users,
-}) {
+function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [assignee, setAssignee] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [success, setSuccess] = useState("");
+
   const { id } = useParams();
 
   const assigneeOptions = users.map((user) => ({
@@ -33,59 +26,31 @@ function EditCardModal({
     value: user.userId,
   }));
 
-  useEffect(() => {
-    if (card) {
-      setCardTitle(card.title);
-      setCardDescription(card.description);
-      setStoryPoints(card.points.toString());
-      setAssignee(card.assignedUserId);
-    }
-  }, [card]);
-
-  const handleUpdateCard = async () => {
+  const handleAddCard = async () => {
+    debugger;
     if (!cardTitle || !assignee) {
       setError("Title and Assignee are required fields.");
       return;
     }
 
     try {
-      const response = await api.put(
-        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`,
+      const response = await api.post(
+        `/boards/${id}/columns/${columnId}/cards`,
         {
           title: cardTitle,
           description: cardDescription,
-          points: parseInt(storyPoints),
-          assignedUserId: parseInt(assignee),
+          points: storyPoints,
+          assignedUserId: assignee,
         }
       );
 
-      const updatedCard = response.data;
-
-      setSuccessMessage("Card updated successfully!"); // Set success message
-      setTimeout(() => {
-        onUpdate(updatedCard);
-        onClose();
-        setSuccessMessage(""); // Reset success message after 1 second
-      }, 1500);
+      const newCard = response.data;
+      onAddCard(newCard);
+      onClose();
+      setSuccess("Card added successfully!"); // Set the success message
     } catch (error) {
-      console.error("Error updating card: ", error);
-    }
-  };
-
-  const handleDeleteCard = async () => {
-    try {
-      await api.delete(
-        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`
-      );
-
-      setSuccessMessage("Card deleted successfully!"); // Set success message
-      setTimeout(() => {
-        onDelete(card?.cardId, columnId);
-        onClose();
-        setSuccessMessage(""); // Reset success message after 1 second
-      }, 1500);
-    } catch (error) {
-      console.error("Error deleting card: ", error);
+      console.error("Error adding card: ", error);
+      setError("Error adding card. Please try again."); // Set an error message
     }
   };
 
@@ -94,15 +59,14 @@ function EditCardModal({
       open={open}
       onClose={() => {
         setError("");
+        setSuccess("");
         onClose();
       }}
       size="tiny"
     >
-      <Modal.Header>Edit Card</Modal.Header>
+      <Modal.Header>Add Card</Modal.Header>
       <Modal.Content>
-        <Form error={!!error} success={!!successMessage}>
-          <Message error content={error} />
-          <Message success content={successMessage} />
+        <Form error={!!error} success={!!success}>
           <Form.Field>
             <label>Title</label>
             <Input
@@ -132,22 +96,24 @@ function EditCardModal({
             <label>Assignee</label>
             <Dropdown
               placeholder="Select assignee"
+              fluid
+              search
               selection
               options={assigneeOptions}
               value={assignee}
-              onChange={(e, { value }) => setAssignee(value)}
+              onChange={(e, data) => setAssignee(data.value)}
             />
           </Form.Field>
+          <Message error content={error} />
+          <Message success content={success} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button color="red" onClick={handleDeleteCard}>
-          Delete
-        </Button>
         <Button
           color="black"
           onClick={() => {
             setError("");
+            setSuccess("");
             onClose();
           }}
         >
@@ -157,12 +123,12 @@ function EditCardModal({
           primary
           icon="checkmark"
           labelPosition="right"
-          content="Save"
-          onClick={handleUpdateCard}
+          content="Add Card"
+          onClick={handleAddCard}
         />
       </Modal.Actions>
     </Modal>
   );
 }
 
-export default EditCardModal;
+export default AddCardModal;

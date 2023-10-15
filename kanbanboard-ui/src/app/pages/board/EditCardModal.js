@@ -7,17 +7,24 @@ import {
   Dropdown,
   Message,
 } from "semantic-ui-react";
-import api from "../api/api";
+import api from "../../api/api";
 import { useParams } from "react-router-dom";
 
-function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
+function EditCardModal({
+  open,
+  onClose,
+  onUpdate,
+  onDelete,
+  card,
+  columnId,
+  users,
+}) {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [assignee, setAssignee] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const { id } = useParams();
 
   const assigneeOptions = users.map((user) => ({
@@ -26,31 +33,59 @@ function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
     value: user.userId,
   }));
 
-  const handleAddCard = async () => {
-    debugger;
+  useEffect(() => {
+    if (card) {
+      setCardTitle(card.title);
+      setCardDescription(card.description);
+      setStoryPoints(card.points.toString());
+      setAssignee(card.assignedUserId);
+    }
+  }, [card]);
+
+  const handleUpdateCard = async () => {
     if (!cardTitle || !assignee) {
       setError("Title and Assignee are required fields.");
       return;
     }
 
     try {
-      const response = await api.post(
-        `/boards/${id}/columns/${columnId}/cards`,
+      const response = await api.put(
+        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`,
         {
           title: cardTitle,
           description: cardDescription,
-          points: storyPoints,
-          assignedUserId: assignee,
+          points: parseInt(storyPoints),
+          assignedUserId: parseInt(assignee),
         }
       );
 
-      const newCard = response.data;
-      onAddCard(newCard);
-      onClose();
-      setSuccess("Card added successfully!"); // Set the success message
+      const updatedCard = response.data;
+
+      setSuccessMessage("Card updated successfully!"); // Set success message
+      setTimeout(() => {
+        onUpdate(updatedCard);
+        onClose();
+        setSuccessMessage(""); // Reset success message after 1 second
+      }, 1500);
     } catch (error) {
-      console.error("Error adding card: ", error);
-      setError("Error adding card. Please try again."); // Set an error message
+      console.error("Error updating card: ", error);
+    }
+  };
+
+  const handleDeleteCard = async () => {
+    try {
+      await api.delete(
+        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`
+      );
+
+      setSuccessMessage("Card deleted successfully!"); // Set success message
+      setTimeout(() => {
+        onDelete(card?.cardId, columnId);
+        onClose();
+        setSuccessMessage(""); // Reset success message after 1 second
+      }, 1500);
+    } catch (error) {
+      console.error("Error deleting card: ", error);
     }
   };
 
@@ -59,14 +94,15 @@ function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
       open={open}
       onClose={() => {
         setError("");
-        setSuccess("");
         onClose();
       }}
       size="tiny"
     >
-      <Modal.Header>Add Card</Modal.Header>
+      <Modal.Header>Edit Card</Modal.Header>
       <Modal.Content>
-        <Form error={!!error} success={!!success}>
+        <Form error={!!error} success={!!successMessage}>
+          <Message error content={error} />
+          <Message success content={successMessage} />
           <Form.Field>
             <label>Title</label>
             <Input
@@ -96,24 +132,22 @@ function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
             <label>Assignee</label>
             <Dropdown
               placeholder="Select assignee"
-              fluid
-              search
               selection
               options={assigneeOptions}
               value={assignee}
-              onChange={(e, data) => setAssignee(data.value)}
+              onChange={(e, { value }) => setAssignee(value)}
             />
           </Form.Field>
-          <Message error content={error} />
-          <Message success content={success} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
+        <Button color="red" onClick={handleDeleteCard}>
+          Delete
+        </Button>
         <Button
           color="black"
           onClick={() => {
             setError("");
-            setSuccess("");
             onClose();
           }}
         >
@@ -123,12 +157,12 @@ function AddCardModal({ open, onClose, onAddCard, columnId, users }) {
           primary
           icon="checkmark"
           labelPosition="right"
-          content="Add Card"
-          onClick={handleAddCard}
+          content="Save"
+          onClick={handleUpdateCard}
         />
       </Modal.Actions>
     </Modal>
   );
 }
 
-export default AddCardModal;
+export default EditCardModal;

@@ -4,7 +4,7 @@ import KanbanCard from "./KanbanCard";
 import AddCardModal from "./AddCardModal";
 import EditColumnModal from "./EditColumnModal";
 import EditCardModal from "./EditCardModal"; // Import the EditCardModal component
-import api from "../api/api";
+import api from "../../api/api";
 import { useParams } from "react-router-dom";
 
 function KanbanColumn({

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Button, Input, Modal, Header } from "semantic-ui-react";
-import api from "../api/api";
 import KanbanColumn from "./KanbanColumn";
 import { useParams } from "react-router-dom";
+import api from "../../api/api";
 
 function Board() {
   const [columns, setColumns] = useState([]);

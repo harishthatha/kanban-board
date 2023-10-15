@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Grid, Header, Segment, Table } from "semantic-ui-react";
-import api from "../api/api";
-import { useAuth } from "../contexts/AuthContext";
+import api from "../../api/api";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Profile = () => {
   const [user, setUser] = useState({

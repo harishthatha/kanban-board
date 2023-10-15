@@ -1,14 +1,14 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Board from "./app/layout/Board";
 import Layout from "./app/layout/Layout";
-import Boards from "./app/layout/Boards";
 import Login from "./app/pages/login/Login";
 import Register from "./app/pages/register/Register";
 import { AuthProvider } from "./app/contexts/AuthContext";
-import PrivateRoute from "./app/layout/PrivateRoute";
 import Logout from "./app/pages/login/Logout";
-import Profile from "./app/layout/Profile";
-import AccessDenied from "./app/layout/AccessDenied";
+import AccessDenied from "./app/pages/login/AccessDenied";
+import Boards from "./app/pages/board/Boards";
+import Board from "./app/pages/board/Board";
+import Profile from "./app/pages/profile/Profile";
+import PrivateRoute from "./app/pages/login/PrivateRoute";
 
 function App() {
   return (
