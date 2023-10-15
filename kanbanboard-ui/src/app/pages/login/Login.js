@@ -54,7 +54,6 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       console.log(error);
-      // Handle login error, e.g., setErrors({ email: "Invalid email or password", password: "Invalid email or password" });
     }
   };
 

@@ -69,7 +69,10 @@ function KanbanColumn({
 
           return {
             ...col,
-            cards: [...col.cards, { ...shiftedCard }],
+            cards: [
+              ...col.cards,
+              { ...shiftedCard, columnId: column.columnId },
+            ],
           };
         }
 
@@ -251,6 +254,7 @@ function KanbanColumn({
           border: "1px solid black",
           marginBottom: "16px",
           borderRadius: "8px",
+          backgroundColor: "#F4F5F7",
         }}
       >
         <Header
@@ -277,7 +281,7 @@ function KanbanColumn({
             width: "100%",
           }}
         />
-        <div style={{ padding: "16px" }}>
+        <div style={{ paddingLeft: 16, paddingRight: 16, paddingBottom: 16 }}>
           {cards &&
             cards.map((task) => (
               <KanbanCard
