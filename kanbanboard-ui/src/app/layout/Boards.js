@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
+  Button,
   Card,
   Container,
-  Button,
-  Modal,
   Form,
-  Message,
   Icon,
+  Message,
+  Modal,
 } from "semantic-ui-react";
-import { Link } from "react-router-dom";
 import api from "../api/api";
 
 const Boards = () => {

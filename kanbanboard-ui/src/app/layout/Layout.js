@@ -22,8 +22,8 @@ const Layout = ({ children }) => {
   return (
     <div style={layoutStyle}>
       <Header />
-      <LeftSidebar />
-      <div style={contentStyle}>{children}</div>
+      {isAuthenticated() && <LeftSidebar />}
+      <div style={isAuthenticated() ? contentStyle : {}}>{children}</div>
     </div>
   );
 };

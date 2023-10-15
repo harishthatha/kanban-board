@@ -235,7 +235,9 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
       onDrop={handleColumnDrop}
       draggable
       style={{
-        width: 260,
+        minWidth: 260,
+        maxWidth: 260,
+        marginRight: 16,
       }}
     >
       <div

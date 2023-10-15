@@ -2,12 +2,12 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const privateUrls = ["/boards", "/boards/:id", "/"];
+const privateUrls = ["/boards", "/boards/:id", "/", "/profile"];
 
 function PrivateRoute({ path, element: Component }) {
   const { isAuthenticated } = useAuth();
 
-  if ((isAuthenticated() && path === "/login") || path === "/register")
+  if (isAuthenticated() && (path === "/login" || path === "/register"))
     path = "/";
 
   let hasAccess = false;

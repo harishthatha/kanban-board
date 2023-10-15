@@ -11,7 +11,7 @@ const Header = () => {
       <Menu fixed="top" inverted>
         <Menu.Item
           as={Link}
-          to="/boards"
+          to={isAuthenticated() ? "/boards" : "/login"}
           header
           style={{
             border: "none",

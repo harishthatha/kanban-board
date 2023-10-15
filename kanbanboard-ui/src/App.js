@@ -7,6 +7,8 @@ import Register from "./app/pages/register/Register";
 import { AuthProvider } from "./app/contexts/AuthContext";
 import PrivateRoute from "./app/layout/PrivateRoute";
 import Logout from "./app/pages/login/Logout";
+import Profile from "./app/layout/Profile";
+import AccessDenied from "./app/layout/AccessDenied";
 
 function App() {
   return (
@@ -25,6 +27,11 @@ function App() {
             />
             <Route
               exact
+              path="/profile"
+              element={<PrivateRoute path="/profile" element={Profile} />}
+            />
+            <Route
+              exact
               path="/boards"
               element={<PrivateRoute path="/boards" element={Boards} />}
             />
@@ -33,6 +40,7 @@ function App() {
               path="/boards/:id"
               element={<PrivateRoute path="/boards/:id" element={Board} />}
             />
+            <Route exact path="*" element={<AccessDenied />} />
           </Routes>
         </Layout>
       </Router>
