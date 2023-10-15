@@ -7,7 +7,13 @@ import EditCardModal from "./EditCardModal"; // Import the EditCardModal compone
 import api from "../api/api";
 import { useParams } from "react-router-dom";
 
-function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
+function KanbanColumn({
+  column = {},
+  columns,
+  setColumns,
+  onColumnDrop,
+  users,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [editColumnModalOpen, setEditColumnModalOpen] = useState(false);
   const [editCard, setEditCard] = useState(null); // State to store the card being edited
@@ -295,6 +301,7 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
           onClose={closeAddCardModal}
           onAddCard={handleAddCard}
           columnId={column.columnId}
+          users={users}
         />
         <EditColumnModal
           open={editColumnModalOpen}
@@ -310,6 +317,7 @@ function KanbanColumn({ column = {}, columns, setColumns, onColumnDrop }) {
           card={editCard}
           columnId={column.columnId}
           onDelete={closeEditColumnModal}
+          users={users}
         />
       </div>
     </Grid.Column>

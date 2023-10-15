@@ -10,29 +10,22 @@ import {
 import api from "../api/api";
 import { useParams } from "react-router-dom";
 
-function EditCardModal({ open, onClose, onUpdate, onDelete, card, columnId }) {
+function EditCardModal({
+  open,
+  onClose,
+  onUpdate,
+  onDelete,
+  card,
+  columnId,
+  users,
+}) {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [assignee, setAssignee] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
-  const [users, setUsers] = useState([]);
   const { id } = useParams();
-
-  useEffect(() => {
-    // Fetch the list of users from the API and update the state
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get("/user"); // Adjust the API endpoint accordingly
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users: ", error);
-      }
-    };
-
-    fetchUsers();
-  }, []); // Empty dependency array ensures the effect runs once after the initial render
 
   const assigneeOptions = users.map((user) => ({
     key: user.userId,

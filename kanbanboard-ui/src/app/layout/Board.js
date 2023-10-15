@@ -9,7 +9,22 @@ function Board() {
   const [board, setBoard] = useState({});
   const [open, setOpen] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
+  const [users, setUsers] = useState([]);
   const { id } = useParams();
+
+  useEffect(() => {
+    // Fetch the list of users from the API and update the state
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/user"); // Adjust the API endpoint accordingly
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users: ", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const fetchColumns = async () => {
@@ -36,8 +51,13 @@ function Board() {
     }
 
     try {
+      let maxPosition = 0;
+      columns.forEach((column) => {
+        if (column.position > maxPosition) maxPosition = column.position;
+      });
       const response = await api.post(`/boards/${id}/columns`, {
         name: newColumnName.trim(),
+        position: maxPosition + 1,
       });
       const newColumn = response.data;
       setColumns([...columns, newColumn]);
@@ -81,7 +101,7 @@ function Board() {
           right: 150,
         }}
       >
-        <Header style={{ marginTop: 2 }} as="h1">
+        <Header style={{ marginTop: 2 }} as="h2">
           {board?.title}
         </Header>
         <Button color="instagram" onClick={handleAddColumn}>
@@ -114,6 +134,7 @@ function Board() {
                   setColumns={setColumns}
                   columnIndex={index}
                   onColumnDrop={handleColumnDrop}
+                  users={users}
                 />
               </React.Fragment>
             ))}
