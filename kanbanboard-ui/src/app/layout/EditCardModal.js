@@ -8,20 +8,44 @@ import {
   Message,
 } from "semantic-ui-react";
 import api from "../api/api";
+import { useParams } from "react-router-dom";
 
-function EditCardModal({ open, onClose, onUpdate, card }) {
+function EditCardModal({ open, onClose, onUpdate, onDelete, card, columnId }) {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [assignee, setAssignee] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [users, setUsers] = useState([]);
+  const { id } = useParams();
+
+  useEffect(() => {
+    // Fetch the list of users from the API and update the state
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/user"); // Adjust the API endpoint accordingly
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users: ", error);
+      }
+    };
+
+    fetchUsers();
+  }, []); // Empty dependency array ensures the effect runs once after the initial render
+
+  const assigneeOptions = users.map((user) => ({
+    key: user.userId,
+    text: user.firstName + " " + user.lastName,
+    value: user.userId,
+  }));
 
   useEffect(() => {
     if (card) {
       setCardTitle(card.title);
       setCardDescription(card.description);
       setStoryPoints(card.points.toString());
-      setAssignee(card.assignedUserId.toString());
+      setAssignee(card.assignedUserId);
     }
   }, [card]);
 
@@ -32,18 +56,43 @@ function EditCardModal({ open, onClose, onUpdate, card }) {
     }
 
     try {
-      const response = await api.put(`/cards/${card.cardId}`, {
-        title: cardTitle,
-        description: cardDescription,
-        points: parseInt(storyPoints),
-        assignedUserId: parseInt(assignee),
-      });
+      const response = await api.put(
+        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`,
+        {
+          title: cardTitle,
+          description: cardDescription,
+          points: parseInt(storyPoints),
+          assignedUserId: parseInt(assignee),
+        }
+      );
 
       const updatedCard = response.data;
-      onUpdate(updatedCard);
-      onClose();
+
+      setSuccessMessage("Card updated successfully!"); // Set success message
+      setTimeout(() => {
+        onUpdate(updatedCard);
+        onClose();
+        setSuccessMessage(""); // Reset success message after 1 second
+      }, 1500);
     } catch (error) {
       console.error("Error updating card: ", error);
+    }
+  };
+
+  const handleDeleteCard = async () => {
+    try {
+      await api.delete(
+        `/boards/${id}/columns/${columnId}/cards/${card?.cardId}`
+      );
+
+      setSuccessMessage("Card deleted successfully!"); // Set success message
+      setTimeout(() => {
+        onDelete(card?.cardId, columnId);
+        onClose();
+        setSuccessMessage(""); // Reset success message after 1 second
+      }, 1500);
+    } catch (error) {
+      console.error("Error deleting card: ", error);
     }
   };
 
@@ -58,7 +107,9 @@ function EditCardModal({ open, onClose, onUpdate, card }) {
     >
       <Modal.Header>Edit Card</Modal.Header>
       <Modal.Content>
-        <Form error={!!error}>
+        <Form error={!!error} success={!!successMessage}>
+          <Message error content={error} />
+          <Message success content={successMessage} />
           <Form.Field>
             <label>Title</label>
             <Input
@@ -86,16 +137,20 @@ function EditCardModal({ open, onClose, onUpdate, card }) {
           </Form.Field>
           <Form.Field>
             <label>Assignee</label>
-            <Input
-              placeholder="Enter assignee"
+            <Dropdown
+              placeholder="Select assignee"
+              selection
+              options={assigneeOptions}
               value={assignee}
-              onChange={(e) => setAssignee(e.target.value)}
+              onChange={(e, { value }) => setAssignee(value)}
             />
           </Form.Field>
-          <Message error content={error} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
+        <Button color="red" onClick={handleDeleteCard}>
+          Delete
+        </Button>
         <Button
           color="black"
           onClick={() => {

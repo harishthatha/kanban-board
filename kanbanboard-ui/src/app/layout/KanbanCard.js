@@ -1,25 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "semantic-ui-react";
-import EditCardModal from "./EditCardModal"; // Import the new component
 
-function KanbanCard({ card = {}, columnId, onDragStart, onDragOver, onDrop }) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editedCard, setEditedCard] = useState({ ...card });
-
+function KanbanCard({
+  card = {},
+  columnId,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  openEditCardModal,
+}) {
   const handleEditClick = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditModalClose = () => {
-    setIsEditModalOpen(false);
-  };
-
-  const handleEditModalSave = (updatedCard) => {
-    // Handle saving the edited card details here
-    // You can update the card in your state or send it to a parent component for handling
-    // For this example, we'll just update the local state
-    setEditedCard(updatedCard);
-    setIsEditModalOpen(false);
+    openEditCardModal(card);
   };
 
   return (
@@ -46,17 +37,9 @@ function KanbanCard({ card = {}, columnId, onDragStart, onDragOver, onDrop }) {
           <Card.Header style={{ color: "black", fontSize: "14px" }}>
             {card.title}
           </Card.Header>
-          {/* <Card.Meta>Points: {card.points}</Card.Meta> */}
           <Card.Description>{card.description}</Card.Description>
         </Card.Content>
       </Card>
-
-      <EditCardModal
-        isOpen={isEditModalOpen}
-        onClose={handleEditModalClose}
-        onSave={handleEditModalSave}
-        card={editedCard}
-      />
     </>
   );
 }

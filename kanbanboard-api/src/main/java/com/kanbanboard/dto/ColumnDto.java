@@ -18,5 +18,6 @@ public class ColumnDto {
     private int columnId;
     private String name;
     private int boardId;
+    private int position;
     private List<CardDto> cards;
 }

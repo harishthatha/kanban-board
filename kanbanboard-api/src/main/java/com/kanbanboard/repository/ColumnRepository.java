@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ColumnRepository extends JpaRepository<ColumnEntity, Integer> {
 
-    @Query("SELECT c FROM ColumnEntity c WHERE c.boardId = :boardId")
+    @Query("SELECT c FROM ColumnEntity c WHERE c.boardId = :boardId ORDER BY c.position ASC")
     List<ColumnEntity> findByBoardId(@Param("boardId") int boardId);
 
     @Query("SELECT c FROM ColumnEntity c WHERE c.columnId = :columnId AND c.boardId = :boardId")

@@ -23,6 +23,8 @@ public class ColumnEntity extends BaseEntity {
     private String name;
     private int boardId;
 
+    private int position;
+
     @OneToMany(mappedBy = "columnId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CardEntity> cards;
 }

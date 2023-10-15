@@ -30,7 +30,6 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     public List<ColumnDto> getColumnsByBoardId(int boardId) {
         List<ColumnEntity> columns = columnRepository.findByBoardId(boardId);
-           // List<ColumnEntity> columns = boardEntity.get().getColumns();
             return columns.stream()
                     .map(columnEntity -> modelMapper.map(columnEntity, ColumnDto.class))
                     .collect(Collectors.toList());

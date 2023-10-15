@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 
 function Board() {
   const [columns, setColumns] = useState([]);
+  const [board, setBoard] = useState({});
   const [open, setOpen] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
   const { id } = useParams();
@@ -13,8 +14,12 @@ function Board() {
   useEffect(() => {
     const fetchColumns = async () => {
       try {
-        const response = await api.get(`/boards/${id}/columns`);
-        setColumns(response.data);
+        const boardData = await api.get(`/boards/${id}`);
+
+        setBoard({ ...boardData.data });
+
+        const columnsData = await api.get(`/boards/${id}/columns`);
+        setColumns(columnsData.data);
       } catch (error) {
         console.error("Error fetching columns data: ", error);
       }
@@ -78,7 +83,7 @@ function Board() {
           as="h1"
           style={{ marginBottom: "16px", marginTop: 5, marginLeft: 16 }}
         >
-          {"test"}
+          {board?.title}
         </Header>
         <div
           style={{
@@ -99,21 +104,28 @@ function Board() {
         </div>
       </div>
 
-      <div style={{ overflowX: "auto", marginTop: 16, marginLeft: 16 }}>
-        <div className="kanban-grid" style={{ display: "flex" }}>
-          {columns.map((column, index) => (
-            <React.Fragment key={column.columnId}>
-              {index > 0 && <div style={{ width: 16 }} />}
-              <KanbanColumn
-                column={column}
-                columns={columns}
-                setColumns={setColumns}
-                columnIndex={index}
-                onColumnDrop={handleColumnDrop}
-              />
-            </React.Fragment>
-          ))}
-        </div>
+      <div
+        className="kanban-grid"
+        style={{
+          overflowX: "auto",
+          marginTop: 16,
+          marginLeft: 16,
+          marginRight: 16,
+          display: "flex",
+        }}
+      >
+        {columns.map((column, index) => (
+          <React.Fragment key={column.columnId}>
+            {index > 0 && <div style={{ width: 16 }} />}
+            <KanbanColumn
+              column={column}
+              columns={columns}
+              setColumns={setColumns}
+              columnIndex={index}
+              onColumnDrop={handleColumnDrop}
+            />
+          </React.Fragment>
+        ))}
       </div>
 
       <Modal

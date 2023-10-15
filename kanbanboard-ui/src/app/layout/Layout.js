@@ -1,24 +1,19 @@
 import React from "react";
 import { Container } from "semantic-ui-react";
 import Header from "./Header";
-import LeftSidebar from "./Sidebar";
 import { useAuth } from "../contexts/AuthContext";
+import LeftSidebar from "./LeftSidebar";
 
 const layoutStyle = {
   display: "flex",
-};
-
-const sidebarStyle = {
-  width: "85px", // Adjust this width based on your sidebar width
-  flexShrink: 0,
-  marginTop: 60,
+  flexDirection: "column", // Stack items vertically
+  minHeight: "100vh", // Make sure the layout covers the full height of the viewport
 };
 
 const contentStyle = {
   flex: 1,
-  marginTop: 62,
-  paddingLeft: 0,
-  paddingRight: 0,
+  marginTop: "20px", // Adjust the top margin based on your header's height,
+  marginLeft: 150,
 };
 
 const Layout = ({ children }) => {
@@ -27,6 +22,7 @@ const Layout = ({ children }) => {
   return (
     <div style={layoutStyle}>
       <Header />
+      <LeftSidebar />
       <div style={contentStyle}>{children}</div>
     </div>
   );

@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,8 +59,9 @@ public class CardServiceImpl implements CardService {
 
         CardEntity updatedCardEntity = modelMapper.map(updatedCardDto, CardEntity.class);
         updatedCardEntity.setBoardId(boardId);
-        updatedCardEntity.setColumnId(columnId);
+        updatedCardEntity.setColumnId(updatedCardDto.getColumnId());
         updatedCardEntity.setCardId(cardId);
+        updatedCardEntity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         cardRepository.save(updatedCardEntity);
 
         return Optional.of(modelMapper.map(updatedCardEntity, CardDto.class));
