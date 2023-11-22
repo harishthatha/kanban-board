@@ -8,7 +8,4 @@ public class CardNotFoundException extends BaseException {
         super(message);
     }
 
-    public CardNotFoundException(String message, HttpStatus status) {
-        super(message, status);
-    }
 }

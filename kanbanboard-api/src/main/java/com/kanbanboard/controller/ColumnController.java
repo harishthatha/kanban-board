@@ -47,6 +47,9 @@ public class ColumnController {
         return ResponseEntity.ok(updatedColumn.orElse(null));
     }
 
+    // the way it is more comfy and make it run on the same and other machines also
+    // which makes more
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteColumn(@PathVariable int boardId, @PathVariable int id)
             throws ColumnNotFoundException {
